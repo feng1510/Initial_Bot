@@ -34,6 +34,33 @@ def convert_gif_to_mp4(gif_file, output_file=None):
     cap.release()
     out.release()
 
+def convert_gif_to_gif(gif_file, output_file=None):
+    # 打开GIF文件
+    cap = cv2.VideoCapture(gif_file)
+    
+    # 获取GIF的帧速率和帧大小
+    fps = int(cap.get(cv2.CAP_PROP_FPS))
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    
+    # 创建 GIF 写入器
+    writer = imageio.get_writer(output_file, mode='I', fps=10)
+    
+   
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        writer.append_data(frame)
+    
+    # 释放VideoCapture和VideoWriter
+    cap.release()
+
+     # 关闭写入器
+    writer.close()
+    print("done")
+
 
 def convert_mp4_to_gif(mp4_file, output_file=None):
     reader = imageio.get_reader(mp4_file)
@@ -97,15 +124,16 @@ def main():
         print("2 or mp42gif: MP4 to GIF")
         print("3 or low_fps: MP4 Low-fps")
         print("4 or speed_up: MP4 Speed Up")
+        print("5 or gif2gif: GIF to GIF")
         print("q: quit")
 
-        choice = input("Enter your choice (1/2/3/4): ")
+        choice = input("Enter your choice (1/2/3/4/5): ")
 
         try:
             if choice == "1" or choice == "gif2mp4":
                 input_file = input("Enter the path of the input GIF file: ")
                 output_file = input("Enter the path of the output MP4 file (or press Enter to use default): ").strip()
-                if output_file:
+                if not output_file:
                     output_file = input_file.replace('.gif', '_' + get_datetime_str() + '_.mp4')
                 convert_gif_to_mp4(input_file, output_file)
             elif choice == "2" or choice == "mp42gif":
@@ -130,6 +158,13 @@ def main():
                     output_file = input_file.replace('.mp4', '_' + get_datetime_str() + '_speed_up.mp4')
                 speed_factor_rate = float(speed_factor)
                 speed_up_video(input_file, output_file, speed_factor_rate)
+            elif choice == "5" or choice == "gif2gif":
+                input_file = input("Enter the path of the input GIF file: ")
+                output_file = input("Enter the path of the output GIF file (or press Enter to use default): ").strip()
+                if not output_file:
+                    output_file = input_file.replace('.gif', '_' + get_datetime_str() + '_.gif')
+                convert_gif_to_gif(input_file, output_file)
+            
             elif choice == 'q':
                 print("*"*50)
                 print("*\n*   Thank you for your valuable suggestions!\n*   Bye!\n*")
